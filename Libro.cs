@@ -10,12 +10,12 @@ namespace csharp_biblioteca_db
     {
         public int NumeroPagine { get; set; }
 
-        public Libro(string Codice, string Titolo, int Anno, string Settore, int NumeroPagine,string Scaffale) : base(Codice, Titolo, Anno, Settore,Scaffale)
+        public Libro(int Codice, string Titolo, string Settore, int NumeroPagine,string Scaffale) : base(Codice, Titolo, Settore,Scaffale)
         {
             this.NumeroPagine = NumeroPagine;
 
             //comando inserimento db!! inserisco sia il libro che il documento
-            db.libroAdd(this);
+            //db.libroAdd(this);
         }
 
         public override string ToString()
@@ -24,5 +24,6 @@ namespace csharp_biblioteca_db
                 base.ToString(),
                 this.NumeroPagine);
         }
+
     }
 }
