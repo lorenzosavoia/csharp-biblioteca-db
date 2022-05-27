@@ -23,20 +23,44 @@ namespace csharp_biblioteca_db
               
         }
         
+        internal static bool DoSql(SqlConnection conn, string sql)
+        {
+            
+            using (SqlCommand sqlCmd = new SqlCommand(sql, conn))
+            {
+                try
+                {
+                    sqlCmd.ExecuteNonQuery();
+                    return true;
 
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return false;
+                }
+            }
+        }
 
-        /*     insert into dbo.DOCUMENTI(Codice, Titolo, Settore, Stato, Tipo, Scaffale)
-             Values(1, 'I PROMESSI SPOSI','Romanzo','disponibile','libro','S001')*/
+        /*internal static bool CommitTransaction(SqlConnection conn)
+        {
+            string cmd = "commit transaction";
+            using (SqlCommand sqlCmd = new SqlCommand(cmd, conn))
+            {
+                try
+                {
+                    sqlCmd.ExecuteNonQuery();
+                    return true;
 
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return false;
+                }
+            }
+        }*/
 
-        /*insert into dbo.Libri(Codice, NumPagine)
-        Values(1,300)*/
-
-        /*insert into dbo.Autori(Nome, Cognome, mail)
-        Values('Alessandro','Manzoni','Alessandromanzoni@gmail.com')*/
-
-        /*insert into Autori_documenti(codice_autore, codice_documento)
-        values(1000,1)*/
         internal static int libroAdd(Libro libro, List<Autore> lsAutori)
         {
             //devo collegarmi e inviare un comando di insert del nuovo scaffale
@@ -45,6 +69,14 @@ namespace csharp_biblioteca_db
             {
                 throw new Exception("Unable to connect to database");
             }
+
+            var sConnettion = DoSql(conn, "begin transaction");
+
+            if (!sConnettion)
+            {
+                throw new System.Exception("Errore in begin transaction");
+            }
+
             var cmd = string.Format(@"insert into dbo.DOCUMENTI(Codice, Titolo, Settore, Stato, Tipo, Scaffale)
              Values({0}, '{1}','{2}','{3}','libro','{4}')", libro.Codice, libro.Titolo,libro.Settore,libro.Stato.ToString(),libro.Scaffale.Numero) ;
 
@@ -55,6 +87,8 @@ namespace csharp_biblioteca_db
                     var numrows = insert.ExecuteNonQuery();
                     if(numrows != 1)
                     {
+                        DoSql(conn, "rollback transaction");
+                        conn.Close();
                         throw new Exception("Valore di ritorno errato");
                     }
                  
@@ -62,6 +96,7 @@ namespace csharp_biblioteca_db
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    DoSql(conn, "rollback transaction");
                     conn.Close();
                     return 0;
                 }
@@ -77,14 +112,15 @@ namespace csharp_biblioteca_db
 
                         if (numrows != 1)
                         {
+                            DoSql(conn, "rollback transaction");
+                            conn.Close();
                             throw new Exception("Valore di ritorno errato");
-                        }
-
-                        
+                        }                       
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
+                        DoSql(conn, "rollback transaction");
                         conn.Close();
                         return 0;
                     }
@@ -104,20 +140,21 @@ namespace csharp_biblioteca_db
 
                         if (numrows != 1)
                         {
+                            DoSql(conn, "rollback transaction");
+                            conn.Close();
                             throw new Exception("Valore di ritorno errato");
-                        }
-
-                        
+                        }                      
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
+                        DoSql(conn, "rollback transaction");
                         conn.Close();
                         return 0;
                     }
-
                 }
             }
+
             foreach(Autore autore in lsAutori)
             {
                 var cmd3 = string.Format(@"insert into Autori_documenti(codice_autore, codice_documento)
@@ -131,17 +168,21 @@ namespace csharp_biblioteca_db
 
                         if (numrows != 1)
                         {
+                            DoSql(conn, "rollback transaction");
+                            conn.Close();
                             throw new Exception("Valore di ritorno errato");
                         }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.Message);                        
+                        DoSql(conn, "rollback transaction");
                         conn.Close();
                         return 0;
                     }                    
                 }
             }
+            DoSql(conn, "commit transaction");
             conn.Close();
             return 0;
         }
@@ -199,9 +240,9 @@ namespace csharp_biblioteca_db
             return ls;
         }
         //nel caso ci siano più attributi, allora potete utilizzare le tuple
-        internal static List<Tuple<int, string, string, string, string, string>> documentiGet()
+        internal static List<Tuple<long, string, string, string, string, string>> documentiGet()
         {
-            var ld = new List<Tuple<int, string, string, string, string, string>>();
+            var ld = new List<Tuple<long, string, string, string, string, string>>();
             var conn = Connect();
             if (conn == null)
                 throw new Exception("Unable to connect to the dabatase");
@@ -212,8 +253,8 @@ namespace csharp_biblioteca_db
                 {
                     while (reader.Read())
                     {
-                        var data = new Tuple<Int32, string, string, string, string, string>(
-                            reader.GetInt32(0),
+                        var data = new Tuple<Int64, string, string, string, string, string>(
+                            reader.GetInt64(0),
                             reader.GetString(1),
                             reader.GetString(2),
                             reader.GetString(3),
@@ -224,7 +265,36 @@ namespace csharp_biblioteca_db
                 }
             }
             conn.Close();
+            foreach(var utente in ld)
+            {
+                Console.WriteLine("Documento:\nCodice: {0}\nTitolo: {1}\nSettore: {2}\nStato: {3}\nTipo: {4}\nScaffale: {5}\n",
+                    utente.Item1,
+                    utente.Item2,
+                    utente.Item3,
+                    utente.Item4,
+                    utente.Item5,
+                    utente.Item6);
+            }
             return ld;
+        }
+        internal static long GetUniqueId()
+        {
+            var conn = Connect();
+            if (conn == null)
+                throw new Exception("Unable to connect to the dabatase");
+            
+            string cmdUpdate = "UPDATE codiceunico SET codice = codice + 1 OUTPUT INSERTED.codice";
+            long id;
+            using (SqlCommand select = new SqlCommand(cmdUpdate, conn))
+            {
+                using (SqlDataReader reader = select.ExecuteReader())
+                {
+                    reader.Read();
+                    id = reader.GetInt64(0);
+                }
+            }
+            conn.Close();
+            return id;
         }
     }
 }

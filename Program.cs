@@ -10,10 +10,12 @@ namespace csharp_biblioteca_db // Note: actual namespace depends on the project 
 
             Biblioteca b = new Biblioteca("Civica");
 
-            List<Autore> lAutoriLibro = new List<Autore>();
-            Autore AutoreMioLibro = new Autore("Omero", "Rivera", "giannas.ciao");
+            /*List<Autore> lAutoriLibro = new List<Autore>();
+            Autore AutoreMioLibro = new Autore("Lorenzo", "Savpoa", "giant.sas");
             lAutoriLibro.Add(AutoreMioLibro);
-            b.AggiungiLibro(3, "odissea", "Avventura", 1920, "S002", lAutoriLibro);
+            b.AggiungiLibro(db.GetUniqueId(), "ciaolibro", "pazzo", 1920, "S003", lAutoriLibro);*/
+
+            db.documentiGet();
             /*b.AggiungiScaffale("s001");
             b.AggiungiScaffale("s002");
             b.AggiungiScaffale("s003");*/

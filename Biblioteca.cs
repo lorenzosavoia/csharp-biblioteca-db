@@ -39,7 +39,7 @@ namespace csharp_biblioteca_db
             db.scaffaleAdd(nuovo.Numero);
         }
 
-        public void AggiungiLibro(int sCodice, string sTitolo, string sSettore, int iNumPagine, string sScaffale, List<Autore> lsAutori)
+        public void AggiungiLibro(long sCodice, string sTitolo, string sSettore, int iNumPagine, string sScaffale, List<Autore> lsAutori)
         {
             Libro MioLibro = new Libro(sCodice, sTitolo, sSettore, iNumPagine, sScaffale);
             //MioLibro.Scaffale = new Scaffale(sScaffale);
