@@ -10,7 +10,7 @@ namespace csharp_biblioteca_db
     {
         public int Durata { get; set; }
 
-        public DVD(int Codice, string Titolo, string Settore, int Durata, string nomeScaffale) : base(Codice, Titolo, Settore, nomeScaffale)
+        public DVD(long Codice, string Titolo, string Settore, int Durata, string nomeScaffale) : base(Codice, Titolo, Settore, nomeScaffale)
         {
             this.Durata = Durata;
         }

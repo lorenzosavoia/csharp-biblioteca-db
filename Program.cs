@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Windows;
 
 namespace csharp_biblioteca_db // Note: actual namespace depends on the project name.
 {
@@ -7,15 +8,45 @@ namespace csharp_biblioteca_db // Note: actual namespace depends on the project 
     {
         static void Main(string[] args)
         {
-
             Biblioteca b = new Biblioteca("Civica");
 
-            /*List<Autore> lAutoriLibro = new List<Autore>();
-            Autore AutoreMioLibro = new Autore("Lorenzo", "Savpoa", "giant.sas");
-            lAutoriLibro.Add(AutoreMioLibro);
-            b.AggiungiLibro(db.GetUniqueId(), "ciaolibro", "pazzo", 1920, "S003", lAutoriLibro);*/
+            /*StreamReader reader = new StreamReader("elenco.txt");
+            string linea;
+            while((linea = reader.ReadLine()) != null)
+            {
+                var vett= linea.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                string s = vett[0];
+                var cn = s.Split(new char[] { ' ' });
+                string nome = cn[0];
 
-            db.documentiGet();
+                string cognome = "";
+                try
+                {
+                    cognome = s.Substring(cn[0].Length + 1);
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                string titolo = vett[1];
+                Console.WriteLine("Nome: {0}, Cognome: {1}, Titolo: {2}", nome, cognome, titolo);
+                string mail = nome + "@" + cognome;
+                List<Autore> lAutoriLibro = new List<Autore>();
+                Autore AutoreMioLibro = new Autore(nome, cognome, mail);
+                lAutoriLibro.Add(AutoreMioLibro);
+                b.AggiungiLibro(db.GetUniqueId(), titolo, "vario", 4234, "S003", lAutoriLibro);
+
+            }
+            Environment.Exit(-1);*/
+
+
+/*
+            List<Autore> lAutoriLibro = new List<Autore>();
+            Autore AutoreMioLibro = new Autore("Ciao", "Savpoasda", "giant.ddassas");
+            lAutoriLibro.Add(AutoreMioLibro);
+            b.AggiungiDvd(db.GetUniqueId(), "sono un dvd", "pazzo", 123, "S003", lAutoriLibro);
+
+            db.documentiGet();*/
             /*b.AggiungiScaffale("s001");
             b.AggiungiScaffale("s002");
             b.AggiungiScaffale("s003");*/
@@ -111,5 +142,6 @@ namespace csharp_biblioteca_db // Note: actual namespace depends on the project 
             */
 
         }
+       
     }
 }
